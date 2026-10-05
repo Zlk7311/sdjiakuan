@@ -25,24 +25,6 @@ jobs:
           curl -fsSL --retry 3 https://jerylihub.github.io/gate/hosts.txt -o public/hosts.txt
           test "$(grep -c 'sstp://' public/hosts.txt)" -gt 0
           echo '<meta charset="utf-8"><a href="hosts.txt">hosts.txt</a>' > public/index.html
-
-      - name: Ensure GitHub Pages is enabled (one-time auto setup)
-        run: |
-          code=$(curl -s -o /dev/null -w '%{http_code}' \\
-            -H "Authorization: Bearer $GITHUB_TOKEN" \\
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/pages")
-          echo "Pages API status: $code"
-          if [ "$code" = "404" ]; then
-            curl -sS -X PUT \\
-              -H "Authorization: Bearer $GITHUB_TOKEN" \\
-              -H "Content-Type: application/json" \\
-              -d '{"build_type":"workflow","source":{"branches":["main"],"path":"/public"}}' \\
-              "https://api.github.com/repos/$GITHUB_REPOSITORY/pages"
-            sleep 10
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
